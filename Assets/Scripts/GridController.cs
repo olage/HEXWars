@@ -38,21 +38,6 @@ public class GridController : MonoBehaviour
 	{
 
 	}
-	/*
-	void MakeMove(int x1, int y1, int x2, int y2, int size) {
-		BoardCell startCell = getCell (x1, y1);
-		BoardCell endCell = getCell (x2, y2);
-		
-		startCell.armyInfo.armySize -= size;
-		if (startCell.armyInfo.playerID == endCell.armyInfo.playerID) {
-			endCell.armyInfo.armySize += size;
-		} else if (endCell.armyInfo == null) {
-			endCell.armyInfo = new BoardCell.ArmyInfo (size, startCell.armyInfo.playerID);
-		} else {
-			endCell.armyInfo = CalcucateBattle(startCell.armyInfo, endCell.armyInfo);
-		}
-	}
-*/
 
 	public void SelectCell(int x, int y)
 	{
@@ -73,7 +58,7 @@ public class GridController : MonoBehaviour
 		else if (grid[x,y].GetComponent<HexController>().accessible)
 		{
 			HexController startHex = grid[startCell.x, startCell.y].GetComponent<HexController>();
-			HexController endHex = grid[x,y].GetComponent<HexController>();
+			HexController endHex   = grid[x,y].GetComponent<HexController>();
 
 			if (startHex.ownerID == endHex.ownerID) 
 			{
@@ -93,17 +78,6 @@ public class GridController : MonoBehaviour
 			}
 			startHex.ownerID = 0;
 			startHex.nArmies = 0;
-
-			//Renderer renderer = startCell.GetComponentInChildren<Renderer>();
-			//renderer.material.color = armyColors[startHex.ownerID];
-			TextMesh cellText = grid[startCell.x, startCell.y].GetComponentInChildren<TextMesh>();
-			cellText.text = startHex.nArmies.ToString();
-
-
-			//renderer = currentCell.GetComponentInChildren<Renderer>();
-			//renderer.material.color = armyColors[endHex.ownerID];
-			cellText = grid[x,y].GetComponentInChildren<TextMesh>();
-			cellText.text = endHex.nArmies.ToString();
 
 			ToggleReachArea(startCell.x, startCell.y, false);
 			startCell = null;

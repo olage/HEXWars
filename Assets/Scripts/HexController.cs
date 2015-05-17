@@ -25,10 +25,18 @@ public class HexController : MonoBehaviour
 
 	void Update () 
 	{
+		if (nArmies == 0) 
+			ownerID = 0;
+
 		renderer.material.color = color [ownerID];
 
 		if (accessible)
-			renderer.material.color = Color.white;
+			renderer.material.color += Color.grey;
+
+		if (ownerID != 0) 
+			GetComponentInChildren<TextMesh>().text = nArmies.ToString();
+		else
+			GetComponentInChildren<TextMesh>().text = null;
 	}
 
 	void OnMouseDown ()
