@@ -4,6 +4,7 @@ using System.Collections;
 public class HexController : MonoBehaviour 
 {
 	public GridController gridConteroller;
+	public new Renderer renderer;
 
 	public int ownerID;
 	public int nArmies;
@@ -13,32 +14,26 @@ public class HexController : MonoBehaviour
 
 	public bool send;
 	public bool recieve;
+	public bool accessible;
+
+	Color[] color = {Color.gray, Color.red, Color.green, Color.blue, Color.yellow};
 
 	void Start () 
 	{
-	
+		renderer = GetComponent<Renderer> ();
 	}
 
 	void Update () 
 	{
-	/*	if (Input.GetMouseButtonDown (0)) {
-			Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-			RaycastHit hit;
-			if (Physics.Raycast(ray, out hit)) {
-				Debug.Log ("Name = " + hit.collider.name);
-				Debug.Log ("Tag = " + hit.collider.tag);
-				Debug.Log ("Hit Point = " + hit.point);
-				Debug.Log ("Object position = " + hit.collider.gameObject.transform.position);
-				Debug.Log ("--------------");
-			}
-		}*/
+		renderer.material.color = color [ownerID];
+
+		if (accessible)
+			renderer.material.color = Color.white;
 	}
 
 	void OnMouseDown ()
 	{
 		Debug.Log (x.ToString() + " " + y.ToString() + " " + ownerID.ToString() + " " + nArmies.ToString());
-		//GridController.SelectCell (x, y);
-
 		gridConteroller.SelectCell (x, y);
 	}
 
