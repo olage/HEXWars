@@ -5,10 +5,12 @@ public class GridController : MonoBehaviour
 {
 	class idx
 	{
-		public int x;
-		public int y;
+		public idx(int i, int j) { x = i; y = j; }
+		public int x, y;
 	}
 
+	public RectTransform menu;
+	
 	public GameObject hex;
 	public float r;
 	public float margin;
@@ -41,19 +43,19 @@ public class GridController : MonoBehaviour
 
 	public void SelectCell(int x, int y)
 	{
-		currentCell = new idx ();	
-		currentCell.x = x;
-		currentCell.y = y;
+		currentCell = new idx (x, y);	
 
 		if (startCell == null) 
 		{
 			startCell = currentCell;
 			ToggleReachArea (startCell.x, startCell.y, true);
+			ShowMenu (grid[startCell.x, startCell.y]);
 		} 
 		else if (startCell == currentCell || !grid[x,y].GetComponent<HexController>().accessible) 
 		{
 			ToggleReachArea (startCell.x, startCell.y, false);
 			startCell = null;
+			HideMenu ();
 		} 
 		else if (grid[x,y].GetComponent<HexController>().accessible)
 		{
@@ -62,25 +64,26 @@ public class GridController : MonoBehaviour
 
 			if (startHex.ownerID == endHex.ownerID) 
 			{
-				endHex.nArmies += startHex.nArmies;
+				endHex.nArmiesTotal += startHex.nArmiesTotal;
 			} 
 			else 
 			{
-				if(endHex.nArmies >= startHex.nArmies) 
+				if(endHex.nArmiesTotal >= startHex.nArmiesTotal) 
 				{
-					endHex.nArmies -= startHex.nArmies;
+					endHex.nArmiesTotal -= startHex.nArmiesTotal;
 				} 
 				else 
 				{
-					endHex.nArmies = startHex.nArmies - endHex.nArmies;
+					endHex.nArmiesTotal = startHex.nArmiesTotal - endHex.nArmiesTotal;
 					endHex.ownerID = startHex.ownerID;
 				}
 			}
 			startHex.ownerID = 0;
-			startHex.nArmies = 0;
+			startHex.nArmiesTotal = 0;
 
 			ToggleReachArea(startCell.x, startCell.y, false);
 			startCell = null;
+			HideMenu();
 		}
 	}
 
@@ -110,7 +113,7 @@ public class GridController : MonoBehaviour
 					cellController.y = j;
 					cellController.gridConteroller = this;
 					cellController.ownerID = 1;
-					cellController.nArmies = 1;
+					cellController.nArmiesTotal = 1;
 				}
 			}
 		}
@@ -132,5 +135,16 @@ public class GridController : MonoBehaviour
 				}
 			}
 		}
+	}
+
+	void ShowMenu(GameObject cell)
+	{
+		//Vector3 hangingPos = cell.transform.position + new Vector3(0,1,-2);
+		menu.GetComponent<ArmySelectorPanel>().ShowAtObject (cell);
+	}
+
+	void HideMenu()
+	{
+		menu.GetComponent<ArmySelectorPanel> ().Hide ();
 	}
 }
