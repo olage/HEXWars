@@ -12,6 +12,8 @@ public class HexController : MonoBehaviour
 	public int x;
 	public int y;
 
+	public Board.CellInfo cellInfo;
+
 	public bool send;
 	public bool recieve;
 	public bool accessible;
@@ -27,18 +29,13 @@ public class HexController : MonoBehaviour
 
 	void Update () 
 	{
-		if (nArmiesTotal == 0) 
-			ownerID = 0;
-
-		nArmiesAvailable = nArmiesTotal;
-
-		renderer.material.color = color [ownerID];
-
+		renderer.material.color = color [cellInfo.ownerId];
+		
 		if (accessible)
 			renderer.material.color += Color.grey;
-
-		if (ownerID != 0) 
-			GetComponentInChildren<TextMesh>().text = nArmiesTotal.ToString();
+		
+		if (cellInfo.ownerId != 0) 
+			GetComponentInChildren<TextMesh>().text = cellInfo.armySize.ToString();
 		else
 			GetComponentInChildren<TextMesh>().text = null;
 	}
@@ -46,8 +43,7 @@ public class HexController : MonoBehaviour
 	void OnMouseDown ()
 	{
 		//Debug.Log (x.ToString() + " " + y.ToString() + " " + ownerID.ToString() + " " + nArmiesTotal.ToString());
-		if (ownerID != 0)
-			gridConteroller.SelectCell (x, y);
+		gridConteroller.SelectCell (x, y);
 	}
 
 
