@@ -5,17 +5,11 @@ public class HexController : MonoBehaviour
 {
 	public GridController gridConteroller;
 
-	public int ownerID;
-	public int nArmiesTotal;
-	public int nArmiesSend;
-	public int nArmiesAvailable;
 	public int x;
 	public int y;
 
 	public Board.CellInfo cellInfo;
 
-	public bool send;
-	public bool recieve;
 	public bool accessible;
 	public bool isUnderFog = false;
 

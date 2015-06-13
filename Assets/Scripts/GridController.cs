@@ -1,8 +1,17 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+
 public class GridController : MonoBehaviour 
 {
+	public static GridController instance { get; private set; }
+
+	void Awake() {
+		instance = this;
+	}
+
+	public DevicePlayer currentPlayer = null;
+
 	public RectTransform menu;
 	
 	public GameObject hex;
@@ -10,6 +19,8 @@ public class GridController : MonoBehaviour
 	public float margin;
 
 	public Board board;
+
+	System.Random rnd = new System.Random();
 
 	GameObject[,] grid;
 
@@ -21,7 +32,6 @@ public class GridController : MonoBehaviour
 
 	void Start () 
 	{
-		CreateGrid ();
 	}
 
 	void Update () 
@@ -35,16 +45,23 @@ public class GridController : MonoBehaviour
 
 		if (!board.IsOnBoard (currentCell)) {
 			return;
-		}		
+		}
 
 		if (startCell == null) {
-			startCell = currentCell;
-			ToggleReachArea (startCell.x, startCell.y, true);
-			ShowMenu (grid [startCell.x, startCell.y]);
+			if (board.CanMoveFromCell(currentCell)) {
+				startCell = currentCell;
+				ToggleReachArea (startCell.x, startCell.y, true);
+				Debug.Log("Cell" + grid[startCell.x, startCell.y]);
+				ShowMenu (grid [startCell.x, startCell.y]);
+			}
 		} else {
 			if (board.IsMovePossible (startCell, currentCell)) {
-				// TODO: board.MakeMove(startCell, currentCell, amount)
-				board.MakeMove(startCell, currentCell);
+				int moveAmount = System.Math.Max (1, rnd.Next(board.GetCellArmySize(startCell)));
+
+				MoveInfo move = new MoveInfo(startCell, currentCell, moveAmount);
+				if (currentPlayer != null) {
+					currentPlayer.nextMove = move;
+				}
 			}
 
 			ToggleReachArea (startCell.x, startCell.y, false);
@@ -53,14 +70,14 @@ public class GridController : MonoBehaviour
 		}
 	}
 
-	void CreateGrid()
+	public void CreateGrid()
 	{
 		float cell_h  = r*0.8660254f; // sqrt(3) / 2
 		float xOffset = (2*cell_h + margin)*0.8660254f;
 		float yOffset =  2*cell_h + margin;
 
-		int boardEdgeSize = 3;
-		board = new Board (boardEdgeSize);
+	//	int boardEdgeSize = 3;
+	//	board = new Board (boardEdgeSize);
 		
 		h = board.ArraySize;
 		w = board.ArraySize;
@@ -79,8 +96,6 @@ public class GridController : MonoBehaviour
 					cellController.y = j;
 					cellController.gridConteroller = this;
 					cellController.cellInfo = board.cells[i, j];
-			//		cellController.ownerID = 1;
-			//		cellController.nArmiesTotal = 1;
 				}
 			}
 		}

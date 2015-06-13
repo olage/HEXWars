@@ -40,8 +40,8 @@ public class Board {
 	}
 
 
-	private int playerTurnId;
-	private int numberOfPlayers;
+	public int currentPlayerId { get; private set; }
+	public int numberOfPlayers { get; private set; }
 
 	int[, ] directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}, {1, 1}, {-1, -1}};
 
@@ -53,12 +53,18 @@ public class Board {
 		for(int i = 0; i < this.arraySize; ++i) {
 			for(int j = 0; j < this.arraySize; ++j) {
 				if(IsOnBoard(i, j)) {
-					this.cells[i, j] = new CellInfo(1, 1);
+					this.cells[i, j] = new CellInfo(0, 0);
 				}
 			}
 		}
 
-		this.playerTurnId = 1;
+		this.cells [0, 0] = new CellInfo (1, 20);
+		this.cells [arraySize - 1, edgeSize - 1] = new CellInfo (3, 20);
+
+		this.cells [edgeSize - 1, arraySize - 1] = new CellInfo (2, 20);
+
+		this.currentPlayerId = 1;
+		this.numberOfPlayers = 3;
 	}
 
 	public bool IsOnBoard(int x, int y) {
@@ -73,7 +79,7 @@ public class Board {
 	}
 
 	public void NextPlayerMove() {
-		this.playerTurnId = (this.playerTurnId % this.numberOfPlayers) + 1;
+		this.currentPlayerId = (this.currentPlayerId % this.numberOfPlayers) + 1;
 	}
 
 	public IEnumerable<idx> GetCellNeighbours(idx start) {
@@ -102,24 +108,38 @@ public class Board {
 		}
 
 		return false;
-	} 
+	}
+
+	public bool CanMoveFromCell(idx start) {
+		return this.cells [start.x, start.y].ownerId == this.currentPlayerId;
+	}
 
 
-	public void MakeMove(idx start, idx end) {
+	public void MakeMove(idx start, idx end, int amount) {
 		CellInfo startCell = this.cells [start.x, start.y];
 		CellInfo endCell = this.cells [end.x, end.y];	
 			
 		if (startCell.ownerId == endCell.ownerId) {
-			endCell.armySize += startCell.armySize;
+			endCell.armySize += amount;
 		} else  {
-			if(endCell.armySize >= startCell.armySize) {
-				endCell.armySize -= startCell.armySize;
+			if(endCell.armySize >= amount) {
+				endCell.armySize -= amount;
 			} else {
-				endCell.armySize = startCell.armySize - endCell.armySize;
+				endCell.armySize = amount - endCell.armySize;
 				endCell.ownerId = startCell.ownerId;
 			}
 		}
-		startCell.ownerId = 0;
-		startCell.armySize = 0;
+
+		startCell.armySize -= amount;
+		if (startCell.armySize == 0) {
+			startCell.ownerId = 0;
+		}
+
+
+	//	this.NextPlayerMove ();
+	}
+
+	public int GetCellArmySize(idx pos) {
+		return cells [pos.x, pos.y].armySize;
 	}
 }
