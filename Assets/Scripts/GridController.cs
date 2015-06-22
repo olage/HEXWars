@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 
 
@@ -20,6 +21,8 @@ public class GridController : MonoBehaviour
 
 	public Board board;
 
+	public ArmySelectorPanel armySelectorPanel;
+
 	System.Random rnd = new System.Random();
 
 	GameObject[,] grid;
@@ -29,15 +32,6 @@ public class GridController : MonoBehaviour
 
 	idx startCell;
 	idx currentCell;
-
-	void Start () 
-	{
-	}
-
-	void Update () 
-	{
-
-	}
 
 	public void SelectCell(int x, int y)
 	{
@@ -56,8 +50,8 @@ public class GridController : MonoBehaviour
 			}
 		} else {
 			if (board.IsMovePossible (startCell, currentCell)) {
-				int moveAmount = System.Math.Max (1, rnd.Next(board.GetCellArmySize(startCell)));
-
+				//int moveAmount = System.Math.Max (1, rnd.Next(board.GetCellArmySize(startCell)));
+				int moveAmount = armySelectorPanel.currentArmySize;
 				MoveInfo move = new MoveInfo(startCell, currentCell, moveAmount);
 				if (currentPlayer != null) {
 					currentPlayer.nextMove = move;
@@ -76,18 +70,12 @@ public class GridController : MonoBehaviour
 		float xOffset = (2*cell_h + margin)*0.8660254f;
 		float yOffset =  2*cell_h + margin;
 
-	//	int boardEdgeSize = 3;
-	//	board = new Board (boardEdgeSize);
-		
-		h = board.ArraySize;
-		w = board.ArraySize;
-
-		grid = new GameObject[h, w];
+		grid = new GameObject[board.ArraySize, board.ArraySize];
 
 		Debug.Log ("Start Debug");
 
-		for (int i = 0; i < h; i++) {
-			for (int j = 0; j < w; j++) {
+		for (int i = 0; i < board.ArraySize; i++) {
+			for (int j = 0; j < board.ArraySize; j++) {
 				if (board.IsOnBoard(i, j)) {
 					grid[i,j] = Instantiate (hex, new Vector3(j*xOffset, (0.5f*j - i)*yOffset, 0), Quaternion.identity) as GameObject;
 
@@ -110,12 +98,16 @@ public class GridController : MonoBehaviour
 
 	void ShowMenu(GameObject cell)
 	{
+		armySelectorPanel.ShowAtObject (cell);
 		//Vector3 hangingPos = cell.transform.position + new Vector3(0,1,-2);
-		menu.GetComponent<ArmySelectorPanel>().ShowAtObject (cell);
 	}
 
 	void HideMenu()
 	{
-		menu.GetComponent<ArmySelectorPanel> ().Hide ();
+		armySelectorPanel.Hide ();
+	}
+
+	public void SetEndTurn() {
+		this.currentPlayer.SetEndTurn ();
 	}
 }

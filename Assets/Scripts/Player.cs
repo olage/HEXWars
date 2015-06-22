@@ -11,7 +11,7 @@ public abstract class Player {
 	}
 
 	public abstract MoveInfo GetNextMove ();	
-
+	public abstract void MakeNextMove ();
 	public abstract void StartTurn();
 	public abstract void EndTurn ();
 

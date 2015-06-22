@@ -45,7 +45,7 @@ public class Board {
 
 	int[, ] directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}, {1, 1}, {-1, -1}};
 
-	public Board(int edgeSize) {
+	public Board(int edgeSize, int numberOfPlayers) {
 		this.edgeSize = edgeSize;
 		this.arraySize = 2 * edgeSize - 1;
 		this.cells = new CellInfo[this.arraySize, this.arraySize];
@@ -58,13 +58,19 @@ public class Board {
 			}
 		}
 
-		this.cells [0, 0] = new CellInfo (1, 20);
-		this.cells [arraySize - 1, edgeSize - 1] = new CellInfo (3, 20);
+		this.numberOfPlayers = numberOfPlayers;
+		if (this.numberOfPlayers == 3) {
+			this.cells [0, 0] = new CellInfo (1, 20);
+			this.cells [arraySize - 1, edgeSize - 1] = new CellInfo (3, 20);
+			this.cells [edgeSize - 1, arraySize - 1] = new CellInfo (2, 20);
+		}
 
-		this.cells [edgeSize - 1, arraySize - 1] = new CellInfo (2, 20);
+		if (this.numberOfPlayers == 2) {
+			this.cells [0, 0] = new CellInfo (1, 20);
+			this.cells [arraySize - 1, arraySize - 1] = new CellInfo (2, 20);
+		}
 
 		this.currentPlayerId = 1;
-		this.numberOfPlayers = 3;
 	}
 
 	public bool IsOnBoard(int x, int y) {

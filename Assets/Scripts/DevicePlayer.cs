@@ -9,7 +9,15 @@ public class DevicePlayer : Player {
 	public override MoveInfo GetNextMove() {
 		return nextMove;
 	}
-	
+
+	public override void MakeNextMove() {
+		nextMove = null;
+	}
+
+	public void SetEndTurn() {
+		endTurn = true;
+	}
+
 	public override void StartTurn() {
 		this.endTurn = false;
 		GridController.instance.currentPlayer = this;
