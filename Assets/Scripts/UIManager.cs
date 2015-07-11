@@ -1,15 +1,18 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 
 public class UIManager : MonoBehaviour {
+	public Text currentPlayerText;
+	public Text growRateText;
 
-	// Use this for initialization
-	void Start () {
-	
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	
+	public void UpdateUI(Board board) {
+		currentPlayerText.text = "Current player: " + board.currentPlayerId.ToString();
+
+		string s = "";
+		for(int i = 1; i <= board.numberOfPlayers; ++i) {
+			s += "Player " + i.ToString() + ": " + board.playersGrowAmount[i] + "\n";
+		}
+		growRateText.text = s;
 	}
 }

@@ -5,11 +5,15 @@ public class GameManager : MonoBehaviour {
 	Player[] players;
 	Board board;
 	Player currentPlayer;
-	
+
+	public UIManager uiManager;
+
 	void Start () {
 		int numberOfPlayers = 2;
 
 		board = new Board (3, numberOfPlayers);
+
+
 
 		players = new Player[numberOfPlayers];
 		for(int i = 0; i < numberOfPlayers; ++i) {
@@ -26,13 +30,19 @@ public class GameManager : MonoBehaviour {
 	void Update () {
 		MoveInfo move = currentPlayer.GetNextMove ();
 		if (move != null) {
-			this.board.MakeMove (move.start, move.end, move.amount);
+			if(move.moveType == MoveInfo.MoveType.Grow) {
+				this.board.MakeGrow (move.start);
+			} else if(move.moveType == MoveInfo.MoveType.Move) {
+				this.board.MakeMove (move.start, move.end, move.amount);
+			}
 			currentPlayer.MakeNextMove ();
 		}
 
 		if(currentPlayer.IsEndTurn()) {
 			this.NextPlayer();
 		}
+
+		uiManager.UpdateUI (board);
 	}
 
 	void NextPlayer() {

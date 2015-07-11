@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using System.Collections;
 
 
-public class GridController : MonoBehaviour 
+public class GridController : MonoBehaviour
 {
 	public static GridController instance { get; private set; }
 
@@ -31,15 +31,22 @@ public class GridController : MonoBehaviour
 	int h;
 
 	idx startCell;
-	idx currentCell;
 
-	public void SelectCell(int x, int y)
+
+	public void SelectCellOnGrowPhase(int x, int y)
 	{
-		currentCell = new idx (x, y);	
-
-		if (!board.IsOnBoard (currentCell)) {
-			return;
+		idx currentCell = new idx (x, y);	
+		if (board.IsGrowPossible (currentCell)) {
+			MoveInfo move = new MoveInfo(currentCell);
+			if(currentPlayer != null) {
+				currentPlayer.nextMove = move;
+			}
 		}
+	}
+
+	public void SelectCellOnMovePhase(int x, int y)
+	{
+		idx currentCell = new idx (x, y);
 
 		if (startCell == null) {
 			if (board.CanMoveFromCell(currentCell)) {
@@ -57,10 +64,19 @@ public class GridController : MonoBehaviour
 					currentPlayer.nextMove = move;
 				}
 			}
-
+			
 			ToggleReachArea (startCell.x, startCell.y, false);
 			startCell = null;
 			HideMenu ();
+		}
+	}
+
+	public void SelectCell(int x, int y)
+	{
+		if (board.turnPhase == Board.TurnPhase.GrowPhase) {
+			SelectCellOnGrowPhase (x, y);
+		} else if (board.turnPhase == Board.TurnPhase.MovePhase) {
+			SelectCellOnMovePhase (x, y);
 		}
 	}
 

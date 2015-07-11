@@ -27,8 +27,14 @@ public class Board {
 			this.ownerId = ownerId;
 			this.armySize = armySize;
 		}
-
 	}
+
+	public enum TurnPhase {
+		GrowPhase,
+		MovePhase
+	}
+
+	public TurnPhase turnPhase;
 
 	public CellInfo[, ] cells;
 
@@ -39,6 +45,7 @@ public class Board {
 		get { return arraySize; }
 	}
 
+	public int[] playersGrowAmount;
 
 	public int currentPlayerId { get; private set; }
 	public int numberOfPlayers { get; private set; }
@@ -49,13 +56,13 @@ public class Board {
 		this.edgeSize = edgeSize;
 		this.arraySize = 2 * edgeSize - 1;
 		this.cells = new CellInfo[this.arraySize, this.arraySize];
+		this.playersGrowAmount = new int[numberOfPlayers + 1];
+		for (int i = 1; i <= numberOfPlayers; ++i) {
+			this.playersGrowAmount [i] = -1;
+		}
 
-		for(int i = 0; i < this.arraySize; ++i) {
-			for(int j = 0; j < this.arraySize; ++j) {
-				if(IsOnBoard(i, j)) {
-					this.cells[i, j] = new CellInfo(0, 0);
-				}
-			}
+		foreach( idx i in GetCellsIdx()) {
+			this.cells[i.x, i.y] = new CellInfo(0, 0);
 		}
 
 		this.numberOfPlayers = numberOfPlayers;
@@ -70,6 +77,7 @@ public class Board {
 			this.cells [arraySize - 1, arraySize - 1] = new CellInfo (2, 20);
 		}
 
+		this.turnPhase = TurnPhase.MovePhase;
 		this.currentPlayerId = 1;
 	}
 
@@ -84,10 +92,24 @@ public class Board {
 		return IsOnBoard (i.x, i.y);
 	}
 
-	public void NextPlayerMove() {
-		this.currentPlayerId = (this.currentPlayerId % this.numberOfPlayers) + 1;
+	private void ComputeGrowRate() {
+		foreach( idx i in GetCellsIdx() ) {
+			if(this.cells[i.x, i.y].ownerId == currentPlayerId) {
+				this.playersGrowAmount[currentPlayerId] += 1;
+			}
+		}
+
+		if (this.playersGrowAmount [currentPlayerId] == 0) {
+			this.turnPhase = Board.TurnPhase.MovePhase;
+		}
 	}
 
+	public void NextPlayerMove() {
+		this.currentPlayerId = (this.currentPlayerId % this.numberOfPlayers) + 1;
+		this.turnPhase = TurnPhase.GrowPhase;
+		ComputeGrowRate ();
+	}
+	
 	public IEnumerable<idx> GetCellNeighbours(idx start) {
 		for(int i = 0; i < directions.GetLength(0); ++i) {
 
@@ -96,6 +118,27 @@ public class Board {
 				yield return end;
 			}
 		}
+	}
+
+	public IEnumerable<idx> GetCellsIdx() {
+		for(int i = 0; i < this.arraySize; ++i) {
+			for(int j = 0; j < this.arraySize; ++j) {
+				if(IsOnBoard(i, j)) {
+					yield return new idx(i, j);
+				}
+			}
+		}
+	}
+
+	public bool IsGrowPossible(idx cell) {
+		if (!IsOnBoard (cell)) {
+			return false;
+		}
+
+		if (this.cells [cell.x, cell.y].ownerId == currentPlayerId && this.playersGrowAmount[currentPlayerId] > 0) {
+			return true;
+		}
+		return false;
 	}
 
 	public bool IsMovePossible(idx start, idx end) {
@@ -120,7 +163,15 @@ public class Board {
 		return this.cells [start.x, start.y].ownerId == this.currentPlayerId;
 	}
 
+	public void MakeGrow(idx cell) {
+		this.cells [cell.x, cell.y].armySize += 1;
+		this.playersGrowAmount [currentPlayerId] -= 1;
 
+		if (this.playersGrowAmount [currentPlayerId] == 0) {
+			this.turnPhase = TurnPhase.MovePhase;
+		}
+	}
+	
 	public void MakeMove(idx start, idx end, int amount) {
 		CellInfo startCell = this.cells [start.x, start.y];
 		CellInfo endCell = this.cells [end.x, end.y];	
